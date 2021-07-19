@@ -145,8 +145,7 @@ public static boolean differences(int[]arr1, int[]arr2){
       int powerOf10 = 0;
       int res = 0;
       for(int i = n.length-1; i>=0; i--){
-        res += n[i]*Math.pow(10, powerOf10);
-        powerOf10++;
+        res += n[i]*Math.pow(10, powerOf10++);
       }
       return res;
     }
@@ -158,7 +157,10 @@ public static boolean differences(int[]arr1, int[]arr2){
 //GENERATES PERMUTATIONS
     public static void helperGeneratePermutation(int []n, int cidx, ArrayList<Integer>permutations){
       if(cidx == n.length-1){
-        permutations.add(toInteger(n));
+    	Integer m = toInteger(n);
+    	if(!(permutations.contains(m))) {
+    		permutations.add(m);
+    	}
         return;
       }
        for(int i = cidx; i < n.length; ++i){
