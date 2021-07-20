@@ -31,8 +31,12 @@ class Graph
         {
             int src = edge.source;
             int dest = edge.dest;
-            adjList.get(src).add(dest);
-            adjList.get(dest).add(src);
+            if(!adjList.get(src).contains(dest)) {
+            	adjList.get(src).add(dest);
+            }
+            if(!adjList.get(dest).contains(src)) {
+            	adjList.get(dest).add(src);
+            }
         }
     }
 }
@@ -168,12 +172,12 @@ public static boolean differences(int[]arr1, int[]arr2){
     {
      // System.out.println(generateEdges(3));
         // consider a complete graph having 4 vertices
-        List<Edge> edges = Arrays.asList(
+        /*List<Edge> edges = Arrays.asList(
                 new Edge(0, 1), new Edge(1, 2), new Edge(2, 3),
                 new Edge(3, 4), new Edge(4, 5), new Edge(5, 0),
                 new Edge(6,7),  new Edge(7,8), new Edge(8,9), new Edge(9,10), new Edge(10,11),
                 new Edge(11,6), new Edge(12,13), new Edge(13,14), new Edge(14,15), new Edge(15,16),new Edge(16,17),new Edge(17,12), new Edge(18,19),new Edge(19,20),new Edge(20,21),new Edge(21,22),new Edge(22,23),new Edge(23,18),new Edge(0,6), new Edge(1,7),new Edge(2,18),new Edge(3,19),new Edge(4,13),new Edge(5,12),new Edge(11,17),new Edge(10,16),new Edge(9,22),new Edge(8,23),new Edge(14,20),new Edge(15,21)
-        );
+        );*/
         List<Edge> edges2 = generateEdges(4);
         // total number of nodes in the graph
         final int N = 24;
