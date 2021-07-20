@@ -1,7 +1,7 @@
+package example1;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.HashMap;
 import java.lang.Integer;
 import java.util.*;
 // A class to store a graph edge
@@ -18,57 +18,62 @@ class Edge
 class Graph
 {
     // A list of lists to represent an adjacency list
-    HashMap<Integer, List<Integer>> list = new HashMap<>();
     List<List<Integer>> adjList = null;
-    List<Integer> permut = null;
     // Constructor
-    Graph(List<Edge> edges, List<List<Integer>> AList, int N,  List<Integer> permutation)
+    Graph(List<Edge> edges, int N)
     {
-        permut = permutation;
-        adjList = AList;
-        for(int i =0; i< permut.size(); i++){
-          list.put(permut.get(i), adjList.get(i));
+        adjList = new ArrayList<>();
+        for (int i = 0; i < N; i++) {
+            adjList.add(new ArrayList<>());
         }
-       System.out.println(list);
+        // add edges to the undirected graph
+        for (Edge edge: edges)
+        {
+            int src = edge.source;
+            int dest = edge.dest;
+            adjList.get(src).add(dest);
+            adjList.get(dest).add(src);
+        }
     }
 }
- class Main
+public class Main
 {
+	  private static List<ArrayList<Integer>> paths = new ArrayList<ArrayList<Integer>>();
     public static void printAllHamiltonianPaths(Graph g,
                                                 int v,
-                                                HashMap<Integer, Boolean> visited,
-                                                List<Integer> path,
+                                                boolean[] visited,
+                                                ArrayList<Integer> path,
                                                 int N) {
         // if all the vertices are visited, then the Hamiltonian path exists
-      /*  System.out.println(path);
-        System.out.println(visited);
-        System.out.println(v);*/
-        if (path.size() == N )
+        if (path.size() == N)
         {
-              if(g.list.get(v).contains(g.permut.get(0))){
-                path.add(g.permut.get(0));
+              if(g.adjList.get(v).contains(0)){
+                path.add(0);
               System.out.println(path);
               }
             // print the Hamiltonian path
+        /*	if(!paths.contains(path)) {
+        		paths.add(path);
+        	}
+              //System.out.println(path);
+        	System.out.println(paths); */
             return;
         }
         // Check if every edge starting from vertex `v` leads
         // to a solution or not
-        for (int w: g.list.get(v))
+        for (int w: g.adjList.get(v))
         {
-         // System.out.println(w);
-          // process only unvisited vertices as the Hamiltonian
+            // process only unvisited vertices as the Hamiltonian
             // path visit each vertex exactly once
-            if (visited.get(w) == false)
+            if (!visited[w])
             {
-                visited.put(w, true);
+                visited[w] = true;
                 path.add(w);
                 // check if adding vertex `w` to the path leads
                 // to the solution or not
-                v=w;
-                printAllHamiltonianPaths(g, v, visited, path, N);
+                printAllHamiltonianPaths(g, w, visited, path, N);
                 // backtrack
-                visited.put(w, false);
+                visited[w] = false;
                 path.remove(path.size() - 1);
             }
         }
@@ -84,41 +89,33 @@ public static boolean differences(int[]arr1, int[]arr2){
   return diff.size() == 2 && diff.get(1) == 1 + diff.get(0);
 }
 //MAIN FUNCTION WHICH AIMS TO GENERATE LIST OF EDGES
-    public static List<List<Integer>> generateAdjList(int n){
-      ArrayList<Integer> permutations = getPermutation(n);
-     List<List<Integer>> adjList = new ArrayList<List<Integer>>();
-     for(int i = 0; i < permutations.size(); ++i ){
-        List<Integer> neighbors = new ArrayList<Integer>();
-       for(int j = 0; j<permutations.size();++j){
-         if((differences(intSplit(permutations.get(i)) , intSplit(permutations.get(j)) ))){
-           neighbors.add(permutations.get(j));
-         }
-       }
-       adjList.add(neighbors);
-     }
-   // System.out.println(adjList);
-    return adjList;
-    }
-    //make edges list by flattening adjacency list
-    //canonically order adjacency list
-    public static ArrayList<Integer> getPermutation(int n){
+    public static List<Edge> generateEdges(int n){
       int [] arr = new int[n];
       for(int i = 0; i < arr.length; ++i){
           arr[i] = i+1;
         }
       ArrayList<Integer> permutations = new ArrayList<Integer>();
       helperGeneratePermutation(arr, 0, permutations);
+      //System.out.println(permutations);
          Collections.sort(permutations);
-         return permutations;
-      }
-    //System.out.println(permutations);
-    public static List<Edge> generateEdges(int n){
-      ArrayList<Integer> permutations2 = getPermutation(n);
-      List<List<Integer>> AdList = generateAdjList(n);
+     List<List<Integer>> adjList = new ArrayList<List<Integer>>();
+     for(int i = 0; i < permutations.size(); ++i ){
+        List<Integer> neighbors = new ArrayList<Integer>();
+       for(int j = 0; j<permutations.size();++j){
+         if((differences(intSplit(permutations.get(i)) , intSplit(permutations.get(j)) ))){
+           neighbors.add(j);
+         }
+       }
+       adjList.add(neighbors);
+     }
+    System.out.println(adjList);
+    //make edges list by flattening adjacency list
+    //canonically order adjacency list
       List<Edge> edges = new ArrayList<Edge>();
-    for(int i = 0; i < AdList.size(); ++i){
-      for(int j = 0; j < AdList.get(i).size(); ++j){
-        edges.add(new Edge(permutations2.get(i),AdList.get(i).get(j)));
+    System.out.println(permutations);
+    for(int i = 0; i < adjList.size(); ++i){
+      for(int j = 0; j < adjList.get(i).size(); ++j){
+        edges.add(new Edge(i,adjList.get(i).get(j)));
       }
     }
 //wrap in private recursive method
@@ -145,7 +142,8 @@ public static boolean differences(int[]arr1, int[]arr2){
       int powerOf10 = 0;
       int res = 0;
       for(int i = n.length-1; i>=0; i--){
-        res += n[i]*Math.pow(10, powerOf10++);
+        res += n[i]*Math.pow(10, powerOf10);
+        powerOf10++;
       }
       return res;
     }
@@ -157,10 +155,7 @@ public static boolean differences(int[]arr1, int[]arr2){
 //GENERATES PERMUTATIONS
     public static void helperGeneratePermutation(int []n, int cidx, ArrayList<Integer>permutations){
       if(cidx == n.length-1){
-    	Integer m = toInteger(n);
-    	if(!(permutations.contains(m))) {
-    		permutations.add(m);
-    	}
+        permutations.add(toInteger(n));
         return;
       }
        for(int i = cidx; i < n.length; ++i){
@@ -171,29 +166,28 @@ public static boolean differences(int[]arr1, int[]arr2){
     }
     public static void main(String[] args)
     {
-        ArrayList<Integer> permutation = getPermutation(3);
-        List<Edge> edges2 = generateEdges(3);
-        List<List<Integer>> adjList = generateAdjList(3);
+     // System.out.println(generateEdges(3));
+        // consider a complete graph having 4 vertices
+        List<Edge> edges = Arrays.asList(
+                new Edge(0, 1), new Edge(1, 2), new Edge(2, 3),
+                new Edge(3, 4), new Edge(4, 5), new Edge(5, 0),
+                new Edge(6,7),  new Edge(7,8), new Edge(8,9), new Edge(9,10), new Edge(10,11),
+                new Edge(11,6), new Edge(12,13), new Edge(13,14), new Edge(14,15), new Edge(15,16),new Edge(16,17),new Edge(17,12), new Edge(18,19),new Edge(19,20),new Edge(20,21),new Edge(21,22),new Edge(22,23),new Edge(23,18),new Edge(0,6), new Edge(1,7),new Edge(2,18),new Edge(3,19),new Edge(4,13),new Edge(5,12),new Edge(11,17),new Edge(10,16),new Edge(9,22),new Edge(8,23),new Edge(14,20),new Edge(15,21)
+        );
+        List<Edge> edges2 = generateEdges(4);
         // total number of nodes in the graph
-        final int N = 6;
+        final int N = 24;
         // build a graph from the given edges
-        Graph g = new Graph(edges2, adjList, N, permutation);
-       // System.out.println(g.permut);
-       // System.out.println(g.adjList);
+        Graph g = new Graph(edges2, N);
         // starting node
-        int start = 123;
+        int start = 0;
         // add starting node to the path
-        List<Integer> path = new ArrayList<>();
+        ArrayList<Integer> path = new ArrayList<>();
         path.add(start);
         // mark the start node as visited
         boolean[] visited = new boolean[N];
-        HashMap<Integer, Boolean> visited2 =  new HashMap<>();
-        for(int i =0; i < permutation.size();i++){
-          visited2.put(permutation.get(i), false);
-        }
-       // System.out.println(visited2);
-        visited2.put(start, true);
-        //System.out.println(visited2);
-        printAllHamiltonianPaths(g, start, visited2, path, N);
+        visited[start] = true;
+        printAllHamiltonianPaths(g, start, visited, path, N);
+       // System.out.println(paths);
     }
 }
